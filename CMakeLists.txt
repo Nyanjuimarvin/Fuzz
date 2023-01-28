@@ -11,7 +11,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include/)
 include(CTest)
 enable_testing()
 
-add_executable(Fuzz include/fuzzy_match.hh)
+add_executable(Fuzz src/fuzzy_match.cc include/fuzzy_match.hh)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
