@@ -1,7 +1,19 @@
-#include <iostream>
+#include "fuzzymatch.hh"
 
-int main( int, char** ){
+#include <algorithm>
+#include <ctype.h>
+#include <stdio.h>
+#include <vector>
 
-  std::cout << "Hello World!" << std::endl;
-  return 0;
+
+namespace fuzz{
+
+  namespace{
+
+    int main( int, char** ){
+
+      std::cout << "Hello World!" << std::endl;
+      return 0;
+    } 
+  }
 }
