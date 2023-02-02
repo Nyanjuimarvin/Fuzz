@@ -16,11 +16,42 @@ namespace fuzz{
     enum CharRole { None, Tail, Head };
 
 
-    int main( int, char** ){
 
-      std::cout << "Hello World!" << std::endl;
-      return 0;
-    } 
+    CharClass getCharClass(int c) {
+      if (islower(c))
+        return Lower;
+      if (isupper(c))
+        return Upper;
+      return Other;
+    }
+
+
+    void calculateRoles(std::string_view s, int roles[], int *class_set) {
+      if (s.empty()) {
+        *class_set = 0;
+        return;
+      }
+
+      CharClass pre = Other, cur = getCharClass(s[0]), suc;
+      *class_set = 1 << cur;
+      auto fn = [&]() {
+        if (cur == Other)
+          return None;
+          // U(U)L is Head while U(U)U is Tail
+        return pre == Other || (cur == Upper && (pre == Lower || suc == Lower))
+          ? Head
+          : Tail;
+      };
+
+      for (size_t i = 0; i < s.size() - 1; i++) {
+        suc = getCharClass(s[i + 1]);
+        *class_set |= 1 << suc;
+        roles[i] = fn();
+        pre = cur;
+        cur = suc;
+      }
+      roles[s.size() - 1] = fn();
+    }
 
   }
 
