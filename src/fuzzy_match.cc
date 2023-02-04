@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <vector>
+#include <string_view>
 
 
 namespace fuzz{
