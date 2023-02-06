@@ -90,4 +90,23 @@ namespace fuzz{
     return s;
   }
 
+  FuzzyMatcher::FuzzyMatcher(std::string_view pattern, int sensitivity) {
+    calculateRoles(pattern, pat_role, &pat_set);
+
+    if (sensitivity == 1)
+      sensitivity = pat_set & 1 << Upper ? 2 : 0;
+    case_sensitivity = sensitivity;
+    size_t n = 0;
+
+    for (size_t i = 0; i < pattern.size(); i++)
+      if (pattern[i] != ' ') {
+        pat += pattern[i];
+        low_pat[n] = (char)::tolower(pattern[i]);
+        pat_role[n] = pat_role[i];
+        n++;
+    }
+}
+
+
+
 }
