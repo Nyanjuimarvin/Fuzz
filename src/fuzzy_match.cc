@@ -164,5 +164,30 @@ namespace fuzz{
 
 #if 0
 
+TEST_SUITE("fuzzy_match") {
+
+  bool Ranks(std::string_view pat, std::vector<const char*> texts) {
+    FuzzyMatcher fuzzy(pat, 0);
+    std::vector<int> scores;
+
+    for (auto text : texts)
+      scores.push_back(fuzzy.Match(text));
+    bool ret = true;
+
+    for (size_t i = 0; i < texts.size() - 1; i++)
+      if (scores[i] < scores[i + 1]) {
+        ret = false;
+        break;
+      }
+
+    if (!ret) {
+      for (size_t i = 0; i < texts.size(); i++)
+        printf("%s %d ", texts[i], scores[i]);
+      puts("");
+    }
+    return ret;
+  }
+
+}
 
 #endif
