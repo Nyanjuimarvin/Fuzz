@@ -95,6 +95,7 @@ namespace fuzz{
 
     if (sensitivity == 1)
       sensitivity = pat_set & 1 << Upper ? 2 : 0;
+
     case_sensitivity = sensitivity;
     size_t n = 0;
 
@@ -108,5 +109,49 @@ namespace fuzz{
 }
 
 
+  int FuzzyMatcher::match(std::string_view text, bool strict) {
+    if (pat.empty() != text.empty())
+      return kMinScore;
+
+    int n = int(text.size());
+    if (n > kMaxText)
+      return kMinScore + 1;
+
+    this->text = text;
+    for (int i = 0; i < n; i++)
+      low_text[i] = (char)::tolower(text[i]);
+
+    calculateRoles(text, text_role, &text_set);
+
+    if (strict && n && !!pat_role[0] != !!text_role[0])
+      return kMinScore;
+
+    dp[0][0][0] = dp[0][0][1] = 0;
+    for (int j = 0; j < n; j++) {
+      dp[0][j + 1][0] = dp[0][j][0] + missScore(j, false);
+      dp[0][j + 1][1] = kMinScore * 2;
+    }
+
+    for (int i = 0; i < int(pat.size()); i++) {
+      int(*pre)[2] = dp[i & 1];
+      int(*cur)[2] = dp[(i + 1) & 1];
+      cur[i][0] = cur[i][1] = kMinScore;
+
+      for (int j = i; j < n; j++) {
+        cur[j + 1][0] = std::max(cur[j][0] + missScore(j, false),
+                                 cur[j][1] + missScore(j, true));
+      // For the first char of pattern, apply extra restriction to filter bad
+      // candidates (e.g. |int| in |PRINT|)
+        cur[j + 1][1] = (case_sensitivity ? pat[i] == text[j]
+                         : low_pat[i] == low_text[j] &&
+                           (i || text_role[j] != Tail ||
+                                     pat[i] == text[j]))
+          ? std::max(pre[j][0] + matchScore(i, j, false),
+                      pre[j][1] + matchScore(i, j, true))
+          : kMinScore * 2;
+      }
+    }
+
+  }
 
 }
