@@ -152,6 +152,14 @@ namespace fuzz{
       }
     }
 
-  }
+// Enumerate the end position of the match in str. Each removed trailing
+// character has a penalty.
 
+    int ret = kMinScore;
+    for (int j = pat.size(); j <= n; j++)
+      ret = std::max(ret, dp[pat.size() & 1][j][1] - 2 * (n - j));
+    return ret;
+
+
+  }
 }
