@@ -191,4 +191,32 @@ TEST_SUITE("fuzzy_match") {
 
 }
 
+TEST_CASE("test") {
+  FuzzyMatcher fuzzy("", 0);
+  CHECK(fuzzy.Match("") == 0);
+  CHECK(fuzzy.Match("aaa") < 0);
+
+  // case
+  CHECK(Ranks("monad", {"monad", "Monad", "mONAD"}));
+  // initials
+  CHECK(Ranks("ab", {"ab", "aoo_boo", "acb"}));
+  CHECK(Ranks("CC", {"CamelCase", "camelCase", "camelcase"}));
+  CHECK(Ranks("cC", {"camelCase", "CamelCase", "camelcase"}));
+  CHECK(Ranks("c c", {"camelCase", "camel case", "CamelCase", "camelcase","camel ace"}));
+  CHECK(Ranks("Da.Te",
+              {"Data.Text", "Data.Text.Lazy", "Data.Aeson.Encoding.text"}));
+  CHECK(Ranks("foo bar.h", {"foo/bar.h", "foobar.h"}));
+  // prefix
+  CHECK(Ranks("is", {"isIEEE", "inSuf"}));
+  // shorter
+  CHECK(Ranks("ma", {"map", "many", "maximum"}));
+  CHECK(Ranks("print", {"printf", "sprintf"}));
+  // score(PRINT) = kMinScore
+  CHECK(Ranks("ast", {"ast", "AST", "INT_FAST16_MAX"}));
+  // score(PRINT) > kMinScore
+  CHECK(Ranks("Int", {"int", "INT", "PRINT"}));
+}
+}
+
+
 #endif
